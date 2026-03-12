@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────
-# STEP 1: SIDEBAR — Enter your API Key
+#  API Key
 # ─────────────────────────────────────────
 st.sidebar.title("⚙️ Setup")
 st.sidebar.markdown("Get your free API key from [Google AI Studio](https://aistudio.google.com)")
@@ -30,7 +30,7 @@ st.markdown("Upload an ECG report PDF and get a simple, plain-English analysis i
 st.divider()
 
 # ─────────────────────────────────────────
-# STEP 2: Upload PDF
+#  Upload PDF
 # ─────────────────────────────────────────
 uploaded_file = st.file_uploader(
     "Upload ECG PDF",
@@ -39,7 +39,7 @@ uploaded_file = st.file_uploader(
 )
 
 # ─────────────────────────────────────────
-# HELPER: Extract first page of PDF as image
+#  Extract first page of PDF as image
 # ─────────────────────────────────────────
 def extract_image_from_pdf(pdf_bytes):
     """
@@ -67,7 +67,7 @@ def extract_image_from_pdf(pdf_bytes):
     return img_path
 
 # ─────────────────────────────────────────
-# HELPER: Send image to Gemini and get analysis
+#  Send image to Gemini and get analysis
 # ─────────────────────────────────────────
 def analyse_ecg(image_path, api_key):
     """
@@ -104,7 +104,7 @@ def analyse_ecg(image_path, api_key):
     return response.text
 
 # ─────────────────────────────────────────
-# STEP 3: Analyse Button + Display Results
+#  Analyse Button and Display Results
 # ─────────────────────────────────────────
 if uploaded_file and api_key:
     if st.button("🔍 Analyse ECG", use_container_width=True, type="primary"):
@@ -176,10 +176,8 @@ elif not uploaded_file:
     # Show instructions when nothing is uploaded yet
     st.markdown("""
     ### How to use this tool:
-    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
-    2. **Paste the key** in the sidebar on the left
-    3. **Upload** your ECG PDF report
-    4. Click **Analyse ECG** and get results in seconds!
+    1. **Upload** your ECG PDF report
+    2. Click **Analyse ECG** and get results!
     
     ---
     > ⚠️ *This tool is for educational and portfolio demonstration purposes only.  
