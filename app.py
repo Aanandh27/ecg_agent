@@ -4,6 +4,7 @@ import fitz  # PyMuPDF
 import json
 import tempfile
 import os
+import io
 from PIL import Image
 
 # ─────────────────────────────────────────
