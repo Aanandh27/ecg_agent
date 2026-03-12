@@ -42,30 +42,36 @@ uploaded_file = st.file_uploader(
 #  Extract first page of PDF as image
 # ─────────────────────────────────────────
 def extract_image_from_pdf(pdf_bytes):
-    """
-    Converts the first page of a PDF into a PNG image.
-    ECG reports are usually on the first page.
-    """
-    # Write PDF bytes to a temp file (PyMuPDF needs a file path)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(pdf_bytes)
         tmp_path = tmp.name
 
-    # Open PDF and render first page at 2x zoom for better image quality
     doc = fitz.open(tmp_path)
-    page = doc[0]
-    mat = fitz.Matrix(2, 2)         
-    pix = page.get_pixmap(matrix=mat)
+    
+    # Render ALL pages and stack them vertically
+    images = []
+    for page in doc:
+        mat = fitz.Matrix(2, 2)
+        pix = page.get_pixmap(matrix=mat)
+        img = Image.open(io.BytesIO(pix.tobytes("png")))
+        images.append(img)
 
-    # Save rendered page as PNG to another temp file
+    # Stitch pages into one tall image
+    total_height = sum(img.height for img in images)
+    max_width = max(img.width for img in images)
+    combined = Image.new("RGB", (max_width, total_height), "white")
+    
+    y_offset = 0
+    for img in images:
+        combined.paste(img, (0, y_offset))
+        y_offset += img.height
+
     img_path = tmp_path.replace(".pdf", ".png")
-    pix.save(img_path)
-
+    combined.save(img_path)
+    
     doc.close()
-    os.unlink(tmp_path)  # Clean up temp PDF
-
+    os.unlink(tmp_path)
     return img_path
-
 # ─────────────────────────────────────────
 #  Send image to Gemini and get analysis
 # ─────────────────────────────────────────
