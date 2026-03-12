@@ -20,7 +20,7 @@ st.set_page_config(
 # ─────────────────────────────────────────
 st.sidebar.title("⚙️ Setup")
 st.sidebar.markdown("Get your free API key from [Google AI Studio](https://aistudio.google.com)")
-api_key = st.sidebar.text_input("Gemini API Key", type="password", placeholder="Paste your key here")
+api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input("Gemini API Key", type="password", placeholder="Paste your key here")
 
 # ─────────────────────────────────────────
 # MAIN UI
