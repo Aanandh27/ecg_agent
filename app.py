@@ -12,7 +12,6 @@ from PIL import Image
 # ─────────────────────────────────────────
 st.set_page_config(
     page_title="ECG Analyser",
-    page_icon="🫀",
     layout="centered"
 )
 
@@ -26,7 +25,7 @@ api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input("Gemini 
 # ─────────────────────────────────────────
 # MAIN UI
 # ─────────────────────────────────────────
-st.title("🫀 ECG Analyser")
+st.title(" ECG Analyser")
 st.markdown("Upload an ECG report PDF and get a simple, plain-English analysis instantly.")
 st.divider()
 
