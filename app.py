@@ -40,7 +40,7 @@ uploaded_file = st.file_uploader(
 )
 
 # ─────────────────────────────────────────
-#  Extract first page of PDF as image
+#  Extract PDF as image
 # ─────────────────────────────────────────
 def extract_image_from_pdf(pdf_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -78,7 +78,7 @@ def extract_image_from_pdf(pdf_bytes):
 # ─────────────────────────────────────────
 def analyse_ecg(image_path, api_key):
     """
-    Sends the ECG image to Gemini 1.5 Flash.
+    Sends the ECG image to Gemini 2.5 Flash.
     Returns structured JSON with patient info + ECG findings.
     """
     genai.configure(api_key=api_key)
@@ -167,7 +167,7 @@ if uploaded_file and api_key:
 
             st.divider()
 
-            # Expandable raw JSON for developers / interviewers
+            # Expandable raw JSON 
             with st.expander("🧑‍💻 View Raw JSON Output"):
                 st.json(result)
 
