@@ -17,6 +17,11 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────
+# LOAD GEMINI KEY FROM STREAMLIT SECRETS
+# ─────────────────────────────────────────
+api_key = st.secrets["GEMINI_API_KEY"]
+
+# ─────────────────────────────────────────
 # STANDARD ECG RANGES
 # ─────────────────────────────────────────
 ECG_RANGES = {
@@ -28,29 +33,12 @@ ECG_RANGES = {
 }
 
 # ─────────────────────────────────────────
-# SIDEBAR
-# ─────────────────────────────────────────
-st.sidebar.title("⚙️ Setup")
-st.sidebar.markdown("Get API key from https://aistudio.google.com")
-
-api_key = st.sidebar.text_input(
-    "Gemini API Key",
-    type="password"
-)
-
-# ─────────────────────────────────────────
 # MAIN UI
 # ─────────────────────────────────────────
 st.title("🫀 ECG Analyser")
-st.markdown(
-    "Upload an ECG report PDF and receive an AI-powered analysis."
-)
-
+st.markdown("Upload an ECG report PDF and receive an AI-powered analysis.")
 st.divider()
 
-# ─────────────────────────────────────────
-# PDF UPLOAD
-# ─────────────────────────────────────────
 uploaded_file = st.file_uploader(
     "Upload ECG PDF",
     type=["pdf"]
@@ -82,7 +70,7 @@ def extract_image_from_pdf(pdf_bytes):
 # ─────────────────────────────────────────
 # GEMINI ECG ANALYSIS
 # ─────────────────────────────────────────
-def analyse_ecg(image_path, api_key):
+def analyse_ecg(image_path):
 
     genai.configure(api_key=api_key)
 
@@ -131,6 +119,12 @@ Return ONLY valid JSON.
     "Q_wave":"",
     "T_wave_morphology":"",
     "ST_segment":""
+},
+
+"clinical_interpretation":{
+    "possible_conditions":"",
+    "recommended_tests":"",
+    "patient_friendly_summary":""
 }
 
 }
@@ -145,29 +139,23 @@ Return only JSON.
 # ─────────────────────────────────────────
 # ANALYSIS BUTTON
 # ─────────────────────────────────────────
-if uploaded_file and api_key:
+if uploaded_file:
 
     if st.button("🔍 Analyse ECG", use_container_width=True):
 
         with st.spinner("Extracting ECG image..."):
-
-            img_path = extract_image_from_pdf(
-                uploaded_file.read()
-            )
+            img_path = extract_image_from_pdf(uploaded_file.read())
 
         st.subheader("Extracted ECG Image")
-
         st.image(img_path, use_container_width=True)
 
         st.divider()
 
-        with st.spinner("Analysing ECG..."):
-
-            raw = analyse_ecg(img_path, api_key)
+        with st.spinner("Analysing ECG with AI..."):
+            raw = analyse_ecg(img_path)
 
         os.unlink(img_path)
 
-        # CLEAN JSON
         clean = raw.replace("```json","").replace("```","").strip()
 
         try:
@@ -181,34 +169,16 @@ if uploaded_file and api_key:
 
             col1,col2,col3 = st.columns(3)
 
-            col1.metric(
-                "Patient ID",
-                result.get("patient_id","N/A")
-            )
-
-            col2.metric(
-                "Age",
-                result.get("age","N/A")
-            )
-
-            col3.metric(
-                "Gender",
-                result.get("gender","N/A")
-            )
+            col1.metric("Patient ID", result.get("patient_id","N/A"))
+            col2.metric("Age", result.get("age","N/A"))
+            col3.metric("Gender", result.get("gender","N/A"))
 
             st.divider()
 
             col4,col5 = st.columns(2)
 
-            col4.metric(
-                "Heart Rate",
-                result.get("heart_rate","N/A")
-            )
-
-            col5.metric(
-                "Rhythm",
-                result.get("rhythm","N/A")
-            )
+            col4.metric("Heart Rate", result.get("heart_rate","N/A"))
+            col5.metric("Rhythm", result.get("rhythm","N/A"))
 
             st.divider()
 
@@ -226,12 +196,7 @@ if uploaded_file and api_key:
                 name = key.replace("_"," ").title()
 
                 try:
-                    num = float(
-                        str(value)
-                        .replace("ms","")
-                        .replace("bpm","")
-                        .strip()
-                    )
+                    num = float(str(value).replace("ms","").replace("bpm","").strip())
                 except:
                     num = None
 
@@ -240,11 +205,8 @@ if uploaded_file and api_key:
                     low,high = ECG_RANGES[name]
 
                     if num and (num < low or num > high):
-
                         value_display = f"<span style='color:red'>{value}</span>"
-
                     else:
-
                         value_display = value
 
                     range_display = f"{low}-{high}"
@@ -254,9 +216,7 @@ if uploaded_file and api_key:
                     value_display = value
                     range_display = "N/A"
 
-                data.append(
-                    [name,value_display,range_display]
-                )
+                data.append([name,value_display,range_display])
 
             df = pd.DataFrame(
                 data,
@@ -268,17 +228,14 @@ if uploaded_file and api_key:
             )
 
             st.markdown(
-                df.to_html(
-                    escape=False,
-                    index=False
-                ),
+                df.to_html(escape=False,index=False),
                 unsafe_allow_html=True
             )
 
             st.divider()
 
             # ─────────────────────────────────────────
-            # DETAILED ANALYSIS
+            # DETAILED ECG ANALYSIS
             # ─────────────────────────────────────────
             st.subheader("Detailed ECG Analysis")
 
@@ -302,39 +259,62 @@ if uploaded_file and api_key:
 
                 warning=""
 
-                if any(
-                    w in str(value).lower()
-                    for w in abnormal_words
-                ):
+                if any(w in str(value).lower() for w in abnormal_words):
                     warning=" ⚠️"
 
-                st.write(
-                    f"**{label}:** {value}{warning}"
-                )
+                st.write(f"**{label}:** {value}{warning}")
 
             st.divider()
 
             # ─────────────────────────────────────────
-            # FINDINGS
+            # KEY FINDINGS
             # ─────────────────────────────────────────
             st.markdown("### Key Findings")
+            st.info(result.get("key_findings","Not found"))
 
-            st.info(
-                result.get(
-                    "key_findings",
-                    "Not found"
-                )
-            )
-
+            # ─────────────────────────────────────────
+            # OVERALL CONDITION
+            # ─────────────────────────────────────────
             st.markdown("### Overall Condition")
+            st.success(result.get("overall_condition","Not found"))
 
-            st.success(
-                result.get(
-                    "overall_condition",
+            # ─────────────────────────────────────────
+            # AI CLINICAL INTERPRETATION (NEW)
+            # ─────────────────────────────────────────
+            st.divider()
+            st.subheader("AI Clinical Interpretation")
+
+            interpretation = result.get("clinical_interpretation",{})
+
+            st.markdown("**Possible Conditions**")
+            st.warning(
+                interpretation.get(
+                    "possible_conditions",
                     "Not found"
                 )
             )
 
+            st.markdown("**Recommended Next Tests**")
+            st.info(
+                interpretation.get(
+                    "recommended_tests",
+                    "Not found"
+                )
+            )
+
+            st.markdown("**Simple Explanation for Patients**")
+            st.success(
+                interpretation.get(
+                    "patient_friendly_summary",
+                    "Not found"
+                )
+            )
+
+            st.divider()
+
+            # ─────────────────────────────────────────
+            # STATUS
+            # ─────────────────────────────────────────
             urgency = result.get("urgency","Normal")
 
             colors = {
@@ -347,20 +327,16 @@ if uploaded_file and api_key:
                 f"### Status: {colors.get(urgency,'⚪')} {urgency}"
             )
 
+            # ─────────────────────────────────────────
+            # RAW JSON
+            # ─────────────────────────────────────────
             with st.expander("View Raw JSON"):
-
                 st.json(result)
 
         except:
 
             st.error("Could not parse AI response")
             st.text(raw)
-
-elif uploaded_file and not api_key:
-
-    st.warning(
-        "Enter your Gemini API key in the sidebar."
-    )
 
 else:
 
