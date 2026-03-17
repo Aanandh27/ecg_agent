@@ -155,12 +155,9 @@ def analyse_ecg(image_path, api_key):
 
     Return ONLY a valid JSON object. No markdown. No explanation. Just JSON:
     {
-        "patient_name": "full name or Not found",
         "patient_id": "ID number or Not found",
         "age": "number only or Not found",
         "gender": "Male or Female or Not found",
-        "date_of_birth": "date or Not found",
-        "recorded_on": "datetime or Not found",
 
         "heart_rate": "number only in bpm",
         "pr_interval": "number only in ms",
@@ -364,36 +361,27 @@ if uploaded_file and api_key:
             # ── Patient Details ──
             st.markdown("#### 🧑 Patient Details")
             col1, col2, col3 = st.columns(3)
-            col1.metric("👤 Name",        result.get("patient_name", "N/A"))
-            col2.metric("🪪 Patient ID",  result.get("patient_id",   "N/A"))
-            col3.metric("⚧ Gender",       result.get("gender",       "N/A"))
-
-            col4, col5, col6 = st.columns(3)
-            col4.metric("🎂 Age",          result.get("age",          "N/A"))
-            col5.metric("📅 Date of Birth",result.get("date_of_birth","N/A"))
-            col6.metric("🕐 Recorded On",  result.get("recorded_on",  "N/A"))
+            col1.metric("🪪 Patient ID", result.get("patient_id", "N/A"))
+            col2.metric("⚧ Gender",      result.get("gender",     "N/A"))
+            col3.metric("🎂 Age",         result.get("age",        "N/A"))
 
             st.divider()
 
-            # ── Parameter Table + Risk Gauge side by side ──
-            left, right = st.columns([3, 2])
-            with left:
-                render_parameter_table(result)
-            with right:
-                st.markdown("#### 🎯 ECG Risk Score")
-                st.markdown("*Based on waveform findings*")
-                risk = result.get("risk_score", 0)
-                try: risk = int(risk)
-                except: risk = 0
-                render_risk_gauge(risk)
+            # ── Risk Gauge + Urgency ──
+            st.markdown("#### 🎯 ECG Risk Score")
+            st.markdown("*Based on waveform findings*")
+            risk = result.get("risk_score", 0)
+            try: risk = int(risk)
+            except: risk = 0
+            render_risk_gauge(risk)
 
-                urgency = result.get("urgency", "Normal")
-                urgency_map = {
-                    "Normal":       "🟢 Normal",
-                    "Needs Review": "🟡 Needs Review",
-                    "Urgent":       "🔴 Urgent"
-                }
-                st.markdown(f"**Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
+            urgency = result.get("urgency", "Normal")
+            urgency_map = {
+                "Normal":       "🟢 Normal",
+                "Needs Review": "🟡 Needs Review",
+                "Urgent":       "🔴 Urgent"
+            }
+            st.markdown(f"**Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
 
             st.divider()
 
@@ -406,7 +394,7 @@ if uploaded_file and api_key:
 
             st.divider()
 
-            # ── Parameter Table (standalone full width) ──
+            # ── Parameter Table (full width) ──
             render_parameter_table(result)
 
             st.divider()
