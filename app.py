@@ -90,7 +90,7 @@ api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input(
 # ─────────────────────────────────────────
 st.markdown("""
 <div class="top-bar">
-    <h1>🫀 ECG Analyser</h1>
+    <h1> ECG Analyser </h1>
     <p>Upload an ECG report PDF and get a complete clinical analysis powered by AI</p>
 </div>
 """, unsafe_allow_html=True)
@@ -362,10 +362,8 @@ def render_clinical_findings(result):
 if not uploaded_file:
     st.markdown("""
     ### How to use this tool:
-    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
-    2. **Paste the key** in the sidebar on the left
-    3. **Upload** your ECG PDF report
-    4. Click **Analyse ECG** and get full clinical results instantly!
+    1. **Upload** your ECG PDF report
+    2. Click **Analyse ECG** and get full clinical results instantly!
     """)
 
 # ── API key warning ──
@@ -403,7 +401,7 @@ if uploaded_file and api_key:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Patient Details ──
-            st.markdown("#### 🧑 Patient Details")
+            st.markdown("####  Patient Details")
             pid    = result.get("patient_id", "N/A")
             gender = result.get("gender",     "N/A")
             age    = result.get("age",        "N/A")
@@ -437,7 +435,7 @@ if uploaded_file and api_key:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Rhythm ──
-            st.markdown("#### 🎵 Rhythm")
+            st.markdown("####  Rhythm")
             rhythm = result.get("rhythm", "N/A")
             st.markdown(
                 f'<div class="findings-card" style="margin-bottom:0;">'
@@ -449,7 +447,7 @@ if uploaded_file and api_key:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Key Findings ──
-            st.markdown("#### 🔎 Key Findings")
+            st.markdown("#### Key Findings")
             findings = result.get("key_findings", "No findings extracted")
             st.markdown(
                 f'<div class="findings-card">'
@@ -483,7 +481,7 @@ if uploaded_file and api_key:
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            with st.expander("🧑‍💻 View Raw JSON Output"):
+            with st.expander(" View Raw JSON Output"):
                 st.json(result)
 
             # ── Footer ──
