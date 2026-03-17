@@ -188,7 +188,7 @@ def analyse_ecg(image_path, api_key):
 # ─────────────────────────────────────────
 def render_risk_gauge(score):
     score = max(0, min(100, int(score)))
-    color = "#3b82f6" if score <= 30 else ("#8b5cf6" if score <= 60 else "#ec4899")
+    color = "green" if score <= 30 else ("yellow" if score <= 60 else "red")
     label = "Low Risk" if score <= 30 else ("Medium Risk" if score <= 60 else "High Risk")
     rotation = -90 + (score / 100) * 180
     st.components.v1.html(f"""
