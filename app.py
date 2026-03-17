@@ -415,11 +415,11 @@ if uploaded_file and api_key:
 
             # ── Parameter Table ──
             render_parameter_table(result)
-            st.markdown("<br>", unsafe_allow_html=True)
+        
 
             # ── Clinical Findings Cards ──
             render_clinical_findings(result)
-            st.markdown("<br>", unsafe_allow_html=True)
+        
 
             # ── Rhythm ──
             st.markdown("####  Rhythm")
