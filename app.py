@@ -1,7 +1,6 @@
-
 import streamlit as st
 import google.generativeai as genai
-import fitz 
+import fitz  # PyMuPDF
 import json
 import tempfile
 import os
@@ -91,7 +90,7 @@ api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input(
 # ─────────────────────────────────────────
 st.markdown("""
 <div class="top-bar">
-    <h1>ECG Analyser</h1>
+    <h1>🫀 ECG Analyser</h1>
     <p>Upload an ECG report PDF and get a complete clinical analysis powered by AI</p>
 </div>
 """, unsafe_allow_html=True)
@@ -266,7 +265,7 @@ def analyse_ecg(image_path, api_key):
 # PARAMETER TABLE
 # ─────────────────────────────────────────
 def render_parameter_table(result):
-    st.markdown("#### ECG Parameters — Range")
+    st.markdown("#### 📋 ECG Parameters — Normal Range Check")
     rows = []
     for key, meta in NORMAL_RANGES.items():
         raw = result.get(key, "Not found")
@@ -363,8 +362,10 @@ def render_clinical_findings(result):
 if not uploaded_file:
     st.markdown("""
     ### How to use this tool:
-    1. **Upload** your ECG PDF report
-    2. Click **Analyse ECG** and get full clinical results instantly!
+    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
+    2. **Paste the key** in the sidebar on the left
+    3. **Upload** your ECG PDF report
+    4. Click **Analyse ECG** and get full clinical results instantly!
     """)
 
 # ── API key warning ──
@@ -382,7 +383,7 @@ if uploaded_file and api_key:
         with st.spinner("Extracting ECG image from PDF..."):
             img_path = extract_image_from_pdf(pdf_bytes)
 
-        st.subheader("Extracted ECG Image")
+        st.subheader("📋 Extracted ECG Image")
         st.image(img_path, caption="Extracted from PDF", use_container_width=True)
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -396,21 +397,66 @@ if uploaded_file and api_key:
         os.unlink(img_path)
 
         try:
-            result = json.loads(raw.strip().replace("
-json","").replace("
-","").strip())
+            result = json.loads(raw.strip().replace("```json","").replace("```","").strip())
 
             st.subheader("📊 ECG Analysis Report")
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Patient Details ──
-            st.markdown("#### Patient Details")
-            st.markdown('<div class="patient-card">', unsafe_allow_html=True)
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Patient ID", result.get("patient_id", "N/A"))
-            col2.metric("Gender",      result.get("gender",     "N/A"))
-            col3.metric("Age",         result.get("age",        "N/A"))
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("#### 🧑 Patient Details")
+            pid    = result.get("patient_id", "N/A")
+            gender = result.get("gender",     "N/A")
+            age    = result.get("age",        "N/A")
+            st.components.v1.html(f"""
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;display:flex;gap:0;font-family:sans-serif;">
+                <div style="flex:1;padding-right:16px;border-right:1px solid #e2e8f0;">
+                    <div style="font-size:0.78rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">🪪 Patient ID</div>
+                    <div style="font-size:1.3rem;font-weight:700;color:#111827;">{pid}</div>
+                </div>
+                <div style="flex:1;padding:0 16px;border-right:1px solid #e2e8f0;">
+                    <div style="font-size:0.78rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">⚧ Gender</div>
+                    <div style="font-size:1.3rem;font-weight:700;color:#111827;">{gender}</div>
+                </div>
+                <div style="flex:1;padding-left:16px;">
+                    <div style="font-size:0.78rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">🎂 Age</div>
+                    <div style="font-size:1.3rem;font-weight:700;color:#111827;">{age}</div>
+                </div>
+            </div>
+            """, height=100)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # ── Parameter Table ──
+            render_parameter_table(result)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # ── Clinical Findings Cards ──
+            render_clinical_findings(result)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # ── Rhythm ──
+            st.markdown("#### 🎵 Rhythm")
+            rhythm = result.get("rhythm", "N/A")
+            st.markdown(
+                f'<div class="findings-card" style="margin-bottom:0;">'
+                f'<strong>Rhythm:</strong> {rhythm}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # ── Key Findings ──
+            st.markdown("#### 🔎 Key Findings")
+            findings = result.get("key_findings", "No findings extracted")
+            st.markdown(
+                f'<div class="findings-card">'
+                f'{findings}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
             st.markdown("<br>", unsafe_allow_html=True)
 
@@ -427,42 +473,17 @@ json","").replace("
                 "Urgent":       "🔴 Urgent"
             }
             st.components.v1.html(
-                f'<div style="border-left:5px solid {risk_color};background:#f8fafc;border-radius:10px;padding:14px 20px;font-family:sans-serif;margin-bottom:8px;">'
+                f'<div style="border-left:5px solid {risk_color};background:#f8fafc;border-radius:10px;padding:14px 20px;font-family:sans-serif;">'
                 f'<div style="font-size:0.82rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">ECG Risk Score</div>'
                 f'<div style="font-size:1.6rem;font-weight:800;color:{risk_color};">{risk} <span style="font-size:1rem;font-weight:600;">/ 100</span> &nbsp;—&nbsp; {risk_label}</div>'
                 f'<div style="font-size:0.9rem;color:#374151;margin-top:6px;font-weight:500;">Status: {urgency_map.get(urgency, "⚪ " + urgency)}</div>'
                 f'</div>',
                 height=110
             )
- 
-            st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # ── Rhythm & Key Findings ──
-            st.markdown("#### 🔎 Rhythm & Key Findings")
-            rhythm  = result.get("rhythm", "N/A")
-            findings = result.get("key_findings", "No findings extracted")
-            st.markdown(
-                f'<div class="findings-card">'
-                f'<strong>Rhythm:</strong> {rhythm}<br><br>{findings}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            # ── Parameter Table ──
-            render_parameter_table(result)
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            # ── Clinical Findings Cards ──
-            render_clinical_findings(result)
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            with st.expander("View Raw JSON Output"):
+            with st.expander("🧑‍💻 View Raw JSON Output"):
                 st.json(result)
 
             # ── Footer ──
