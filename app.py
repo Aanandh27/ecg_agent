@@ -255,7 +255,7 @@ def analyse_ecg(image_path, api_key):
 # PARAMETER TABLE
 # ─────────────────────────────────────────
 def render_parameter_table(result):
-    st.markdown("#### 📋 ECG Parameters — Normal Range Check")
+    st.markdown("#### 📋 ECG Parameters")
     rows = []
     for key, meta in NORMAL_RANGES.items():
         raw = result.get(key, "Not found")
@@ -309,7 +309,7 @@ def render_parameter_table(result):
 # CLINICAL FINDINGS CARDS
 # ─────────────────────────────────────────
 def render_clinical_findings(result):
-    st.markdown("#### 🩺 Clinical Findings")
+    st.markdown("#### Clinical Findings")
     cards_html = """
     <style>
         .cf-card {
