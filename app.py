@@ -188,31 +188,31 @@ def analyse_ecg(image_path, api_key):
 # ─────────────────────────────────────────
 def render_risk_gauge(score):
     score = max(0, min(100, int(score)))
-    color = "green" if score <= 30 else ("yellow" if score <= 60 else "red")
+    color = "#16a34a" if score <= 30 else ("#d97706" if score <= 60 else "#dc2626")
     label = "Low Risk" if score <= 30 else ("Medium Risk" if score <= 60 else "High Risk")
     rotation = -90 + (score / 100) * 180
     st.components.v1.html(f"""
-    <div style="display:flex;flex-direction:column;align-items:center;margin:10px 0 20px 0;">
+    <div style="background:#ffffff;border-radius:16px;padding:20px 10px 16px 10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,0.10);">
         <div style="position:relative;width:240px;height:130px;overflow:hidden;">
             <div style="position:absolute;width:220px;height:220px;border-radius:50%;top:10px;left:10px;
-                background:conic-gradient(#3b82f6 0deg 54deg,#8b5cf6 54deg 108deg,#ec4899 108deg 180deg,transparent 180deg 360deg);"></div>
-            <div style="position:absolute;width:140px;height:140px;background:white;border-radius:50%;top:50px;left:50px;"></div>
-            <div style="position:absolute;width:4px;height:90px;background:{color};border-radius:4px;
-                top:30px;left:119px;transform-origin:bottom center;transform:rotate({rotation}deg);"></div>
-            <div style="position:absolute;width:14px;height:14px;background:{color};border-radius:50%;top:121px;left:113px;"></div>
+                background:conic-gradient(#16a34a 0deg 54deg,#d97706 54deg 108deg,#dc2626 108deg 180deg,transparent 180deg 360deg);"></div>
+            <div style="position:absolute;width:144px;height:144px;background:#ffffff;border-radius:50%;top:48px;left:48px;"></div>
+            <div style="position:absolute;width:5px;height:90px;background:{color};border-radius:4px;
+                top:30px;left:118px;transform-origin:bottom center;transform:rotate({rotation}deg);box-shadow:0 0 6px {color};"></div>
+            <div style="position:absolute;width:14px;height:14px;background:{color};border-radius:50%;top:120px;left:113px;"></div>
         </div>
         <div style="text-align:center;margin-top:10px;">
-            <span style="font-size:2rem;font-weight:700;color:{color};">{score}</span>
-            <span style="font-size:1rem;color:#6b7280;">/100</span><br>
-            <span style="font-size:1.1rem;font-weight:600;color:{color};">{label}</span>
+            <span style="font-size:2.2rem;font-weight:800;color:{color};">{score}</span>
+            <span style="font-size:1rem;color:#6b7280;"> / 100</span><br>
+            <span style="font-size:1.1rem;font-weight:700;color:{color};">{label}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;width:220px;margin-top:8px;">
-            <span style="font-size:0.78rem;font-weight:600;color:#3b82f6;">● Low</span>
-            <span style="font-size:0.78rem;font-weight:600;color:#8b5cf6;">● Medium</span>
-            <span style="font-size:0.78rem;font-weight:600;color:#ec4899;">● High</span>
+        <div style="display:flex;justify-content:space-between;width:220px;margin-top:10px;">
+            <span style="font-size:0.78rem;font-weight:700;color:#16a34a;">● Low</span>
+            <span style="font-size:0.78rem;font-weight:700;color:#d97706;">● Medium</span>
+            <span style="font-size:0.78rem;font-weight:700;color:#dc2626;">● High</span>
         </div>
     </div>
-    """, height=240)
+    """, height=250)
 
 # ─────────────────────────────────────────
 # PARAMETER TABLE WITH RANGE CHECK
