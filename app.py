@@ -13,7 +13,7 @@ from PIL import Image
 st.set_page_config(
     page_title="ECG Analyser",
     page_icon="🫀",
-    layout="centered"
+    layout="wide"
 )
 
 # ─────────────────────────────────────────
