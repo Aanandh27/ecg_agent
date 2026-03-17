@@ -13,7 +13,6 @@ from PIL import Image
 # ─────────────────────────────────────────
 st.set_page_config(
     page_title="ECG Analyser",
-    page_icon="🫀",
     layout="centered"
 )
 
@@ -33,7 +32,7 @@ st.title("🫀 ECG Analyser")
 st.markdown("Upload an ECG report PDF and get a complete clinical analysis instantly.")
 st.divider()
 
-# ✅ File uploader — always defined first before any conditionals
+
 uploaded_file = st.file_uploader(
     "📄 Upload ECG PDF",
     type=["pdf"],
@@ -77,7 +76,7 @@ ABNORMAL_TRIGGERS = {
 }
 
 # ─────────────────────────────────────────
-# PDF → IMAGE (all pages stitched)
+# PDF → IMAGE 
 # ─────────────────────────────────────────
 def extract_image_from_pdf(pdf_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -101,7 +100,6 @@ def extract_image_from_pdf(pdf_bytes):
 
 # ─────────────────────────────────────────
 # GEMINI ANALYSIS
-# Full prompt — reads BOTH printed text AND waveform
 # ─────────────────────────────────────────
 def analyse_ecg(image_path, api_key):
     genai.configure(api_key=api_key)
@@ -204,7 +202,7 @@ def analyse_ecg(image_path, api_key):
 # PARAMETER TABLE WITH RANGE CHECK
 # ─────────────────────────────────────────
 def render_parameter_table(result):
-    st.markdown("#### 📋 ECG Parameters — Normal Range Check")
+    st.markdown("#### 📋 ECG Parameters — Range")
     rows = []
     for key, meta in NORMAL_RANGES.items():
         raw = result.get(key, "Not found")
@@ -259,7 +257,7 @@ def render_parameter_table(result):
 # CLINICAL FINDINGS CARDS
 # ─────────────────────────────────────────
 def render_clinical_findings(result):
-    st.markdown("#### 🩺 Clinical Findings")
+    st.markdown("####  Clinical Findings")
     cards_html = """
     <style>
         .cf-card {
@@ -293,15 +291,13 @@ def render_clinical_findings(result):
     st.components.v1.html(cards_html, height=len(CLINICAL_FIELDS)*58+20, scrolling=False)
 
 # ─────────────────────────────────────────
-# LANDING — shown when nothing uploaded
+# LANDING 
 # ─────────────────────────────────────────
 if not uploaded_file:
     st.markdown("""
     ### How to use this tool:
-    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
-    2. **Paste the key** in the sidebar on the left
-    3. **Upload** your ECG PDF report
-    4. Click **Analyse ECG** and get full clinical results instantly!
+    1. **Upload** your ECG PDF report
+    2. Click **Analyse ECG** and get full clinical results instantly!
 
     ---
     > ⚠️ *This tool is for educational and portfolio demonstration purposes only.
