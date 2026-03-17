@@ -411,17 +411,14 @@ if uploaded_file and api_key:
                 </div>
             </div>
             """, height=100)
-
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Parameter Table ──
             render_parameter_table(result)
-
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Clinical Findings Cards ──
             render_clinical_findings(result)
-
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Rhythm ──
