@@ -411,44 +411,6 @@ if uploaded_file and api_key:
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # ── Risk Score + Status ──
-            risk = result.get("risk_score", 0)
-            try: risk = int(risk)
-            except: risk = 0
-            risk_color = "#16a34a" if risk <= 30 else ("#d97706" if risk <= 60 else "#dc2626")
-            risk_label = "Low Risk" if risk <= 30 else ("Medium Risk" if risk <= 60 else "High Risk")
-            urgency = result.get("urgency", "Normal")
-            urgency_map = {
-                "Normal":       "🟢 Normal",
-                "Needs Review": "🟡 Needs Review",
-                "Urgent":       "🔴 Urgent"
-            }
-            st.components.v1.html(
-                f'<div style="border-left:5px solid {risk_color};background:#f8fafc;border-radius:10px;padding:14px 20px;font-family:sans-serif;margin-bottom:8px;">'
-                f'<div style="font-size:0.82rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">ECG Risk Score</div>'
-                f'<div style="font-size:1.6rem;font-weight:800;color:{risk_color};">{risk} <span style="font-size:1rem;font-weight:600;">/ 100</span> &nbsp;—&nbsp; {risk_label}</div>'
-                f'<div style="font-size:0.9rem;color:#374151;margin-top:6px;font-weight:500;">Status: {urgency_map.get(urgency, "⚪ " + urgency)}</div>'
-                f'</div>',
-                height=110
-            )
- 
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            # ── Rhythm & Key Findings ──
-            st.markdown("#### 🔎 Rhythm & Key Findings")
-            rhythm  = result.get("rhythm", "N/A")
-            findings = result.get("key_findings", "No findings extracted")
-            st.markdown(
-                f'<div class="findings-card">'
-                f'<strong>Rhythm:</strong> {rhythm}<br><br>{findings}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
             # ── Parameter Table ──
             render_parameter_table(result)
 
@@ -462,6 +424,56 @@ if uploaded_file and api_key:
             with st.expander("View Raw JSON Output"):
                 st.json(result)
 
+            st.markdown("<br>", unsafe_allow_html=True)
+
+             # ── Rhythm ──
+             st.markdown("#### 🔎 Rhythm")
+             rhythm = result.get("rhythm", "N/A")
+
+             st.markdown(
+              f'<div class="findings-card"><strong>{rhythm}</strong></div>',
+              unsafe_allow_html=True
+              )
+
+             st.markdown("<br>", unsafe_allow_html=True)
+
+             # ── Key Findings ──
+             st.markdown("#### 🧾 Key Findings")
+             findings = result.get("key_findings", "No findings extracted")
+
+              st.markdown(
+              f'<div class="findings-card">{findings}</div>',
+              unsafe_allow_html=True
+              )
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+
+             # ── Risk Score + Status ──
+             risk = result.get("risk_score", 0)
+             try:
+             risk = int(risk)
+             except:
+             risk = 0
+
+            risk_color = "#16a34a" if risk <= 30 else ("#d97706" if risk <= 60 else "#dc2626")
+            risk_label = "Low Risk" if risk <= 30 else ("Medium Risk" if risk <= 60 else "High Risk")
+
+             urgency = result.get("urgency", "Normal")
+             urgency_map = {
+             "Normal": "🟢 Normal",
+             "Needs Review": "🟡 Needs Review",
+             "Urgent": "🔴 Urgent"
+              }
+
+st.components.v1.html(
+    f'<div style="border-left:5px solid {risk_color};background:#f8fafc;border-radius:10px;padding:14px 20px;font-family:sans-serif;margin-bottom:8px;">'
+    f'<div style="font-size:0.82rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">ECG Risk Score</div>'
+    f'<div style="font-size:1.6rem;font-weight:800;color:{risk_color};">{risk} <span style="font-size:1rem;font-weight:600;">/ 100</span> &nbsp;—&nbsp; {risk_label}</div>'
+    f'<div style="font-size:0.9rem;color:#374151;margin-top:6px;font-weight:500;">Status: {urgency_map.get(urgency, "⚪ " + urgency)}</div>'
+    f'</div>',
+    height=110
+)
             # ── Footer ──
             st.markdown(
                 '<div class="footer">⚕️ For educational and demonstration purposes only. '
