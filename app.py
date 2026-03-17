@@ -51,11 +51,7 @@ NORMAL_RANGES = {
 }
 
 CLINICAL_FIELDS = [
-    ("ecg_quality",          "ECG Quality"),
     ("ventricular_rate",     "Ventricular Rate"),
-    ("pr_interval",          "PR Interval"),
-    ("qrs_duration",         "QRS Duration"),
-    ("qtc_interval",         "QTc Interval"),
     ("cardiac_axis",         "Cardiac Axis"),
     ("sinus_rhythm",         "Sinus Rhythm Present"),
     ("other_rhythm",         "Other Rhythm"),
@@ -63,10 +59,6 @@ CLINICAL_FIELDS = [
     ("av_conduction",        "AV Conduction"),
     ("ventricular_ectopics", "Ventricular Ectopics"),
     ("atrial_ectopics",      "Atrial Ectopics"),
-    ("p_wave_morphology",    "P-Wave Morphology"),
-    ("qrs_morphology",       "QRS Morphology"),
-    ("q_wave",               "Q-Wave"),
-    ("t_wave_morphology",    "T-Wave Morphology"),
     ("st_segment",           "ST Segment"),
 ]
 
@@ -196,31 +188,31 @@ def analyse_ecg(image_path, api_key):
 # ─────────────────────────────────────────
 def render_risk_gauge(score):
     score = max(0, min(100, int(score)))
-    color = "#22c55e" if score <= 30 else ("#f59e0b" if score <= 60 else "#ef4444")
+    color = "#3b82f6" if score <= 30 else ("#8b5cf6" if score <= 60 else "#ec4899")
     label = "Low Risk" if score <= 30 else ("Medium Risk" if score <= 60 else "High Risk")
     rotation = -90 + (score / 100) * 180
     st.components.v1.html(f"""
     <div style="display:flex;flex-direction:column;align-items:center;margin:10px 0 20px 0;">
-        <div style="position:relative;width:220px;height:115px;overflow:hidden;">
-            <div style="position:absolute;width:200px;height:200px;border-radius:50%;top:10px;left:10px;
-                background:conic-gradient(#22c55e 0deg 54deg,#f59e0b 54deg 108deg,#ef4444 108deg 180deg,transparent 180deg 360deg);"></div>
-            <div style="position:absolute;width:130px;height:130px;background:white;border-radius:50%;top:45px;left:45px;"></div>
-            <div style="position:absolute;width:4px;height:85px;background:{color};border-radius:4px;
-                top:28px;left:109px;transform-origin:bottom center;transform:rotate({rotation}deg);"></div>
-            <div style="position:absolute;width:14px;height:14px;background:{color};border-radius:50%;top:108px;left:103px;"></div>
+        <div style="position:relative;width:240px;height:130px;overflow:hidden;">
+            <div style="position:absolute;width:220px;height:220px;border-radius:50%;top:10px;left:10px;
+                background:conic-gradient(#3b82f6 0deg 54deg,#8b5cf6 54deg 108deg,#ec4899 108deg 180deg,transparent 180deg 360deg);"></div>
+            <div style="position:absolute;width:140px;height:140px;background:white;border-radius:50%;top:50px;left:50px;"></div>
+            <div style="position:absolute;width:4px;height:90px;background:{color};border-radius:4px;
+                top:30px;left:119px;transform-origin:bottom center;transform:rotate({rotation}deg);"></div>
+            <div style="position:absolute;width:14px;height:14px;background:{color};border-radius:50%;top:121px;left:113px;"></div>
         </div>
-        <div style="text-align:center;margin-top:6px;">
+        <div style="text-align:center;margin-top:10px;">
             <span style="font-size:2rem;font-weight:700;color:{color};">{score}</span>
             <span style="font-size:1rem;color:#6b7280;">/100</span><br>
             <span style="font-size:1.1rem;font-weight:600;color:{color};">{label}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;width:200px;margin-top:4px;">
-            <span style="font-size:0.75rem;color:#22c55e;">Low</span>
-            <span style="font-size:0.75rem;color:#f59e0b;">Medium</span>
-            <span style="font-size:0.75rem;color:#ef4444;">High</span>
+        <div style="display:flex;justify-content:space-between;width:220px;margin-top:8px;">
+            <span style="font-size:0.78rem;font-weight:600;color:#3b82f6;">● Low</span>
+            <span style="font-size:0.78rem;font-weight:600;color:#8b5cf6;">● Medium</span>
+            <span style="font-size:0.78rem;font-weight:600;color:#ec4899;">● High</span>
         </div>
     </div>
-    """, height=200)
+    """, height=240)
 
 # ─────────────────────────────────────────
 # PARAMETER TABLE WITH RANGE CHECK
