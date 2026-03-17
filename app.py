@@ -431,6 +431,8 @@ if uploaded_file and api_key:
                 f'</div>',
                 height=110
             )
+ 
+            st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
 
