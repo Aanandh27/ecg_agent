@@ -1,6 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
-import fitz  # PyMuPDF
+import fitz 
 import json
 import tempfile
 import os
@@ -28,7 +28,7 @@ api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input(
 # ─────────────────────────────────────────
 # MAIN UI
 # ─────────────────────────────────────────
-st.title("🫀 ECG Analyser")
+st.title("ECG Analyser")
 st.markdown("Upload an ECG report PDF and get a complete clinical analysis instantly.")
 st.divider()
 
@@ -360,8 +360,8 @@ if uploaded_file and api_key:
                 "Urgent":       "🔴 Urgent"
             }
 
-            st.markdown(f"🎯 **ECG Risk Score:** {risk} / 100 — {risk_label}")
-            st.markdown(f"🚦 **Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
+            st.markdown(f" **ECG Risk Score:** {risk} / 100 — {risk_label}")
+            st.markdown(f"**Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
 
             st.divider()
 
@@ -381,7 +381,7 @@ if uploaded_file and api_key:
 
             st.divider()
 
-            with st.expander("🧑‍💻 View Raw JSON Output"):
+            with st.expander("View Raw JSON Output"):
                 st.json(result)
 
         except json.JSONDecodeError:
