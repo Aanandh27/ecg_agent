@@ -105,7 +105,7 @@ def extract_image_from_pdf(pdf_bytes):
 # ─────────────────────────────────────────
 def analyse_ecg(image_path, api_key):
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     image = Image.open(image_path)
 
     prompt = """
