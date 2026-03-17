@@ -183,44 +183,7 @@ def analyse_ecg(image_path, api_key):
     response = model.generate_content([prompt, image])
     return response.text
 
-# ─────────────────────────────────────────
-# RISK GAUGE
-# ─────────────────────────────────────────
-def render_risk_gauge(score):
-    score = max(0, min(100, int(score)))
-    color = "#16a34a" if score <= 30 else ("#d97706" if score <= 60 else "#dc2626")
-    label = "Low Risk" if score <= 30 else ("Medium Risk" if score <= 60 else "High Risk")
-    # Needle: score=0 points left (-180deg), score=100 points right (0deg)
-    needle_angle = -180 + (score / 100) * 180
-    svg = (
-        '<svg viewBox="0 0 260 150" width="260" height="150" xmlns="http://www.w3.org/2000/svg">' +
-        '<path d="M 20,130 A 110,110 0 0,1 67.4,27.3" fill="none" stroke="#16a34a" stroke-width="26" stroke-linecap="butt"/>' +
-        '<path d="M 67.4,27.3 A 110,110 0 0,1 192.6,27.3" fill="none" stroke="#d97706" stroke-width="26" stroke-linecap="butt"/>' +
-        '<path d="M 192.6,27.3 A 110,110 0 0,1 240,130" fill="none" stroke="#dc2626" stroke-width="26" stroke-linecap="butt"/>' +
-        '<circle cx="130" cy="130" r="80" fill="#ffffff"/>' +
-        f'<g transform="translate(130,130) rotate({needle_angle})">' +
-        f'<rect x="-3" y="-84" width="6" height="84" rx="3" fill="{color}"/>' +
-        '</g>' +
-        f'<circle cx="130" cy="130" r="8" fill="{color}"/>' +
-        '</svg>'
-    )
-    html_str = (
-        '<div style="background:#ffffff;border-radius:16px;padding:16px 10px 14px 10px;' +
-        'display:flex;flex-direction:column;align-items:center;' +
-        'box-shadow:0 2px 12px rgba(0,0,0,0.12);width:100%;box-sizing:border-box;">' +
-        svg +
-        '<div style="text-align:center;margin-top:6px;">' +
-        f'<span style="font-size:2.2rem;font-weight:800;color:{color};">{score}</span>' +
-        '<span style="font-size:1rem;color:#6b7280;"> / 100</span><br>' +
-        f'<span style="font-size:1.15rem;font-weight:700;color:{color};">{label}</span>' +
-        '</div>' +
-        '<div style="display:flex;justify-content:space-between;width:220px;margin-top:10px;">' +
-        '<span style="font-size:0.8rem;font-weight:700;color:#16a34a;">&#9679; Low</span>' +
-        '<span style="font-size:0.8rem;font-weight:700;color:#d97706;">&#9679; Medium</span>' +
-        '<span style="font-size:0.8rem;font-weight:700;color:#dc2626;">&#9679; High</span>' +
-        '</div></div>'
-    )
-    st.components.v1.html(html_str, height=260)
+
 
 # ─────────────────────────────────────────
 # PARAMETER TABLE WITH RANGE CHECK
@@ -367,13 +330,12 @@ if uploaded_file and api_key:
 
             st.divider()
 
-            # ── Risk Gauge + Urgency ──
-            st.markdown("#### 🎯 ECG Risk Score")
-            st.markdown("*Based on waveform findings*")
+            # ── Risk Score + Urgency ──
             risk = result.get("risk_score", 0)
             try: risk = int(risk)
             except: risk = 0
-            render_risk_gauge(risk)
+            risk_color = "#16a34a" if risk <= 30 else ("#d97706" if risk <= 60 else "#dc2626")
+            risk_label = "Low Risk" if risk <= 30 else ("Medium Risk" if risk <= 60 else "High Risk")
 
             urgency = result.get("urgency", "Normal")
             urgency_map = {
@@ -381,7 +343,22 @@ if uploaded_file and api_key:
                 "Needs Review": "🟡 Needs Review",
                 "Urgent":       "🔴 Urgent"
             }
-            st.markdown(f"**Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
+
+            col_r1, col_r2 = st.columns(2)
+            with col_r1:
+                st.markdown("#### 🎯 ECG Risk Score")
+                st.components.v1.html(
+                    f'<div style="background:#ffffff;border:2px solid {risk_color};border-radius:12px;' +
+                    f'padding:18px 24px;display:inline-block;box-shadow:0 2px 8px rgba(0,0,0,0.08);">' +
+                    f'<span style="font-size:3rem;font-weight:900;color:{risk_color};">{risk}</span>' +
+                    f'<span style="font-size:1.1rem;color:#6b7280;"> / 100</span><br>' +
+                    f'<span style="font-size:1.1rem;font-weight:700;color:{risk_color};">{risk_label}</span>' +
+                    f'</div>',
+                    height=120
+                )
+            with col_r2:
+                st.markdown("#### 🚦 Status")
+                st.markdown(f"### {urgency_map.get(urgency, '⚪ ' + urgency)}")
 
             st.divider()
 
