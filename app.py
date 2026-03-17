@@ -187,7 +187,6 @@ def analyse_ecg(image_path, api_key):
 
     PART 2 — ANALYSE THE WAVEFORM VISUALLY:
     Look at the actual ECG waveform graph carefully and determine:
-    - ECG quality (is the signal clean or noisy?)
     - Ventricular rate from the R-R intervals on the waveform
     - Cardiac axis from the QRS direction in leads I and aVF
     - Whether sinus rhythm is present (regular P waves before every QRS?)
@@ -196,10 +195,6 @@ def analyse_ecg(image_path, api_key):
     - AV conduction (normal, 1st/2nd/3rd degree block?)
     - Ventricular ectopics (wide bizarre QRS complexes?)
     - Atrial ectopics (early narrow beats with different P-wave morphology?)
-    - P-wave morphology (normal, peaked, bifid, absent?)
-    - QRS morphology (narrow, wide, LBBB, RBBB, delta wave?)
-    - Q-waves (pathological Q waves present in any lead?)
-    - T-wave morphology (normal, inverted, peaked, flattened?)
     - ST segment (isoelectric, elevated, depressed? In which leads?)
 
     IMPORTANT RULES:
@@ -221,7 +216,6 @@ def analyse_ecg(image_path, api_key):
         "qt_interval": "number only in ms",
         "qtc_interval": "number only in ms",
 
-        "ecg_quality": "Good or Acceptable or Poor — from waveform",
         "ventricular_rate": "number only in bpm — from waveform R-R intervals",
         "cardiac_axis": "Normal or Left axis deviation or Right axis deviation — from waveform",
         "sinus_rhythm": "Yes or No — from waveform",
@@ -230,10 +224,6 @@ def analyse_ecg(image_path, api_key):
         "av_conduction": "Normal or describe block type — from waveform",
         "ventricular_ectopics": "Not observed or describe — from waveform",
         "atrial_ectopics": "Not observed or describe — from waveform",
-        "p_wave_morphology": "Normal or describe — from waveform",
-        "qrs_morphology": "Within normal limits or describe — from waveform",
-        "q_wave": "Within normal limits or describe — from waveform",
-        "t_wave_morphology": "Normal or describe — from waveform",
         "st_segment": "Normal or describe elevation/depression and leads — from waveform",
 
         "rhythm": "primary rhythm name e.g. Normal Sinus Rhythm",
