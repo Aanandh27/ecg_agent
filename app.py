@@ -17,6 +17,66 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────
+# GLOBAL STYLES
+# ─────────────────────────────────────────
+st.markdown("""
+<style>
+    /* Top accent bar */
+    .top-bar {
+        background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%);
+        border-radius: 10px;
+        padding: 18px 28px 14px 28px;
+        margin-bottom: 6px;
+    }
+    .top-bar h1 { color: white; font-size: 1.8rem; font-weight: 800; margin: 0; }
+    .top-bar p  { color: #bfdbfe; font-size: 0.95rem; margin: 4px 0 0 0; }
+
+    /* Patient card wrapper */
+    .patient-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 8px;
+    }
+
+    /* Risk + status card */
+    .risk-card {
+        border-radius: 10px;
+        padding: 14px 20px;
+        border-left: 5px solid;
+        background: #f8fafc;
+        margin-bottom: 4px;
+    }
+
+    /* Key findings card */
+    .findings-card {
+        background: #f0f7ff;
+        border: 1px solid #bfdbfe;
+        border-left: 5px solid #2563eb;
+        border-radius: 10px;
+        padding: 16px 20px;
+        font-family: sans-serif;
+        font-size: 0.93rem;
+        line-height: 1.6;
+        color: #1e3a5f;
+        margin-bottom: 4px;
+    }
+    .findings-card strong { color: #1d4ed8; }
+
+    /* Footer */
+    .footer {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.78rem;
+        margin-top: 32px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ─────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────
 st.sidebar.title("⚙️ Setup")
@@ -26,13 +86,18 @@ api_key = st.secrets.get("GEMINI_API_KEY", "") or st.sidebar.text_input(
 )
 
 # ─────────────────────────────────────────
-# MAIN UI
+# HEADER BANNER
 # ─────────────────────────────────────────
-st.title("ECG Analyser")
-st.markdown("Upload an ECG report PDF and get a complete clinical analysis instantly.")
-st.divider()
+st.markdown("""
+<div class="top-bar">
+    <h1>ECG Analyser</h1>
+    <p>Upload an ECG report PDF and get a complete clinical analysis powered by AI</p>
+</div>
+""", unsafe_allow_html=True)
 
+st.markdown("<br>", unsafe_allow_html=True)
 
+# ✅ File uploader
 uploaded_file = st.file_uploader(
     "📄 Upload ECG PDF",
     type=["pdf"],
@@ -76,7 +141,7 @@ ABNORMAL_TRIGGERS = {
 }
 
 # ─────────────────────────────────────────
-# PDF → IMAGE 
+# PDF → IMAGE
 # ─────────────────────────────────────────
 def extract_image_from_pdf(pdf_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -196,13 +261,11 @@ def analyse_ecg(image_path, api_key):
             else:
                 raise e
 
-
-
 # ─────────────────────────────────────────
-# PARAMETER TABLE WITH RANGE CHECK
+# PARAMETER TABLE
 # ─────────────────────────────────────────
 def render_parameter_table(result):
-    st.markdown("#### 📋 ECG Parameters — Range")
+    st.markdown("#### ECG Parameters — Range")
     rows = []
     for key, meta in NORMAL_RANGES.items():
         raw = result.get(key, "Not found")
@@ -212,33 +275,32 @@ def render_parameter_table(result):
             in_range = meta["min"] <= num <= meta["max"]
         except:
             display = str(raw)
-            in_range = True  # can't check numerically, don't flag
+            in_range = True
 
         rows.append({
-            "label":   meta["label"],
-            "value":   display,
-            "range":   f"{meta['min']} – {meta['max']} {meta['unit']}",
-            "ok":      in_range
+            "label": meta["label"],
+            "value": display,
+            "range": f"{meta['min']} – {meta['max']} {meta['unit']}",
+            "ok":    in_range
         })
 
     table_html = """
     <style>
-        .ecg-table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:0.93rem; }
-        .ecg-table th { background:#1e3a5f; color:white; padding:10px 14px; text-align:left; }
-        .ecg-table td { padding:11px 14px; border-bottom:1px solid #e5e7eb; }
-        .ecg-table tr:hover td { background:#f9fafb; }
-        .val-normal { color:#16a34a; font-weight:700; }
+        .ecg-table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:0.93rem; border-radius:10px; overflow:hidden; }
+        .ecg-table th { background:#1e40af; color:white; padding:11px 16px; text-align:left; font-weight:600; letter-spacing:0.03em; }
+        .ecg-table td { padding:11px 16px; border-bottom:1px solid #e5e7eb; }
+        .ecg-table tr:nth-child(even) td { background:#f8fafc; }
+        .ecg-table tr:nth-child(odd)  td { background:#ffffff; }
+        .ecg-table tr:hover td { background:#eff6ff; }
+        .val-normal   { color:#16a34a; font-weight:700; }
         .val-abnormal { color:#dc2626; font-weight:700; }
-        .range-text { color:#6b7280; font-size:0.82rem; }
-        .badge-ok  { background:#dcfce7; color:#166534; border:1px solid #86efac; padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; }
-        .badge-bad { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .range-text   { color:#6b7280; font-size:0.82rem; }
+        .badge-ok  { background:#dcfce7; color:#166534; border:1px solid #86efac; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .badge-bad { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; }
     </style>
     <table class="ecg-table">
         <thead><tr>
-            <th>Parameter</th>
-            <th>Value</th>
-            <th>Normal Range</th>
-            <th>Status</th>
+            <th>Parameter</th><th>Value</th><th>Normal Range</th><th>Status</th>
         </tr></thead><tbody>
     """
     for r in rows:
@@ -257,22 +319,25 @@ def render_parameter_table(result):
 # CLINICAL FINDINGS CARDS
 # ─────────────────────────────────────────
 def render_clinical_findings(result):
-    st.markdown("####  Clinical Findings")
+    st.markdown("#### 🩺 Clinical Findings")
     cards_html = """
     <style>
         .cf-card {
             display:flex; justify-content:space-between; align-items:center;
             padding:11px 16px; margin-bottom:6px;
             border-radius:8px; border:1px solid #e5e7eb;
-            background:#f9fafb; font-family:sans-serif;
+            background:#ffffff; font-family:sans-serif;
         }
         .cf-card.abnormal {
             border-color:#fca5a5; background:#fff5f5;
             border-left:4px solid #ef4444;
         }
-        .cf-label  { color:#374151; font-size:0.87rem; font-weight:500; }
-        .cf-value  { color:#111827; font-size:0.87rem; font-weight:600; }
+        .cf-card.normal { border-left:4px solid #22c55e; }
+        .cf-label { color:#374151; font-size:0.87rem; font-weight:500; display:flex; align-items:center; gap:8px; }
+        .cf-value { color:#111827; font-size:0.87rem; font-weight:600; }
         .cf-value.abnormal { color:#dc2626; }
+        .dot-ok  { width:9px; height:9px; border-radius:50%; background:#22c55e; display:inline-block; flex-shrink:0; }
+        .dot-bad { width:9px; height:9px; border-radius:50%; background:#ef4444; display:inline-block; flex-shrink:0; }
     </style>
     """
     for key, label in CLINICAL_FIELDS:
@@ -281,27 +346,26 @@ def render_clinical_findings(result):
         if key in ABNORMAL_TRIGGERS:
             try: is_bad = ABNORMAL_TRIGGERS[key](str(value))
             except: pass
-        cls  = "abnormal" if is_bad else ""
-        warn = " ⚠️" if is_bad else ""
+        card_cls  = "abnormal" if is_bad else "normal"
+        dot_cls   = "dot-bad" if is_bad else "dot-ok"
+        val_cls   = "abnormal" if is_bad else ""
         cards_html += f"""
-        <div class="cf-card {cls}">
-            <span class="cf-label">{label}{warn}</span>
-            <span class="cf-value {cls}">{value}</span>
+        <div class="cf-card {card_cls}">
+            <span class="cf-label"><span class="{dot_cls}"></span>{label}</span>
+            <span class="cf-value {val_cls}">{value}</span>
         </div>"""
     st.components.v1.html(cards_html, height=len(CLINICAL_FIELDS)*58+20, scrolling=False)
 
 # ─────────────────────────────────────────
-# LANDING 
+# LANDING
 # ─────────────────────────────────────────
 if not uploaded_file:
     st.markdown("""
     ### How to use this tool:
-    1. **Upload** your ECG PDF report
-    2. Click **Analyse ECG** and get full clinical results instantly!
-
-    ---
-    > ⚠️ *This tool is for educational and portfolio demonstration purposes only.
-    > It is not a substitute for professional medical advice.*
+    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
+    2. **Paste the key** in the sidebar on the left
+    3. **Upload** your ECG PDF report
+    4. Click **Analyse ECG** and get full clinical results instantly!
     """)
 
 # ── API key warning ──
@@ -319,9 +383,9 @@ if uploaded_file and api_key:
         with st.spinner("Extracting ECG image from PDF..."):
             img_path = extract_image_from_pdf(pdf_bytes)
 
-        st.subheader("📋 Extracted ECG Image")
+        st.subheader("Extracted ECG Image")
         st.image(img_path, caption="Extracted from PDF", use_container_width=True)
-        st.divider()
+        st.markdown("<br>", unsafe_allow_html=True)
 
         try:
             with st.spinner("Analysing ECG — reading text and waveform... (10–20 seconds)"):
@@ -336,53 +400,74 @@ if uploaded_file and api_key:
             result = json.loads(raw.strip().replace("```json","").replace("```","").strip())
 
             st.subheader("📊 ECG Analysis Report")
+            st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Patient Details ──
-            st.markdown("#### 🧑 Patient Details")
+            st.markdown("#### Patient Details")
+            st.markdown('<div class="patient-card">', unsafe_allow_html=True)
             col1, col2, col3 = st.columns(3)
-            col1.metric("🪪 Patient ID", result.get("patient_id", "N/A"))
-            col2.metric("⚧ Gender",      result.get("gender",     "N/A"))
-            col3.metric("🎂 Age",         result.get("age",        "N/A"))
+            col1.metric("Patient ID", result.get("patient_id", "N/A"))
+            col2.metric("Gender",      result.get("gender",     "N/A"))
+            col3.metric("Age",         result.get("age",        "N/A"))
+            st.markdown('</div>', unsafe_allow_html=True)
 
-            st.divider()
+            st.markdown("<br>", unsafe_allow_html=True)
 
-            # ── Risk Score + Urgency ──
+            # ── Risk Score + Status ──
             risk = result.get("risk_score", 0)
             try: risk = int(risk)
             except: risk = 0
             risk_color = "#16a34a" if risk <= 30 else ("#d97706" if risk <= 60 else "#dc2626")
             risk_label = "Low Risk" if risk <= 30 else ("Medium Risk" if risk <= 60 else "High Risk")
-
             urgency = result.get("urgency", "Normal")
             urgency_map = {
                 "Normal":       "🟢 Normal",
                 "Needs Review": "🟡 Needs Review",
                 "Urgent":       "🔴 Urgent"
             }
+            st.components.v1.html(
+                f'<div style="border-left:5px solid {risk_color};background:#f8fafc;border-radius:10px;padding:14px 20px;font-family:sans-serif;margin-bottom:8px;">'
+                f'<div style="font-size:0.82rem;color:#6b7280;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">ECG Risk Score</div>'
+                f'<div style="font-size:1.6rem;font-weight:800;color:{risk_color};">{risk} <span style="font-size:1rem;font-weight:600;">/ 100</span> &nbsp;—&nbsp; {risk_label}</div>'
+                f'<div style="font-size:0.9rem;color:#374151;margin-top:6px;font-weight:500;">Status: {urgency_map.get(urgency, "⚪ " + urgency)}</div>'
+                f'</div>',
+                height=110
+            )
 
-            st.markdown(f" **ECG Risk Score:** {risk} / 100 — {risk_label}")
-            st.markdown(f"**Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
-
-            st.divider()
+            st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Rhythm & Key Findings ──
             st.markdown("#### 🔎 Rhythm & Key Findings")
-            st.info(f"**Rhythm:** {result.get('rhythm','N/A')}\n\n{result.get('key_findings','No findings extracted')}")
+            rhythm  = result.get("rhythm", "N/A")
+            findings = result.get("key_findings", "No findings extracted")
+            st.markdown(
+                f'<div class="findings-card">'
+                f'<strong>Rhythm:</strong> {rhythm}<br><br>{findings}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
-            st.divider()
+            st.markdown("<br>", unsafe_allow_html=True)
 
-            # ── Parameter Table (full width) ──
+            # ── Parameter Table ──
             render_parameter_table(result)
 
-            st.divider()
+            st.markdown("<br>", unsafe_allow_html=True)
 
             # ── Clinical Findings Cards ──
             render_clinical_findings(result)
 
-            st.divider()
+            st.markdown("<br>", unsafe_allow_html=True)
 
             with st.expander("View Raw JSON Output"):
                 st.json(result)
+
+            # ── Footer ──
+            st.markdown(
+                '<div class="footer">⚕️ For educational and demonstration purposes only. '
+                'Not a substitute for professional clinical judgment or medical advice.</div>',
+                unsafe_allow_html=True
+            )
 
         except json.JSONDecodeError:
             st.warning("Could not parse AI response. Raw output:")
