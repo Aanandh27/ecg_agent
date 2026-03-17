@@ -190,29 +190,37 @@ def render_risk_gauge(score):
     score = max(0, min(100, int(score)))
     color = "#16a34a" if score <= 30 else ("#d97706" if score <= 60 else "#dc2626")
     label = "Low Risk" if score <= 30 else ("Medium Risk" if score <= 60 else "High Risk")
-    rotation = -90 + (score / 100) * 180
-    st.components.v1.html(f"""
-    <div style="background:#ffffff;border-radius:16px;padding:20px 10px 16px 10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,0.10);">
-        <div style="position:relative;width:240px;height:130px;overflow:hidden;">
-            <div style="position:absolute;width:220px;height:220px;border-radius:50%;top:10px;left:10px;
-                background:conic-gradient(#16a34a 0deg 54deg,#d97706 54deg 108deg,#dc2626 108deg 180deg,transparent 180deg 360deg);"></div>
-            <div style="position:absolute;width:144px;height:144px;background:#ffffff;border-radius:50%;top:48px;left:48px;"></div>
-            <div style="position:absolute;width:5px;height:90px;background:{color};border-radius:4px;
-                top:30px;left:118px;transform-origin:bottom center;transform:rotate({rotation}deg);box-shadow:0 0 6px {color};"></div>
-            <div style="position:absolute;width:14px;height:14px;background:{color};border-radius:50%;top:120px;left:113px;"></div>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-            <span style="font-size:2.2rem;font-weight:800;color:{color};">{score}</span>
-            <span style="font-size:1rem;color:#6b7280;"> / 100</span><br>
-            <span style="font-size:1.1rem;font-weight:700;color:{color};">{label}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;width:220px;margin-top:10px;">
-            <span style="font-size:0.78rem;font-weight:700;color:#16a34a;">● Low</span>
-            <span style="font-size:0.78rem;font-weight:700;color:#d97706;">● Medium</span>
-            <span style="font-size:0.78rem;font-weight:700;color:#dc2626;">● High</span>
-        </div>
-    </div>
-    """, height=250)
+    # Needle: score=0 points left (-180deg), score=100 points right (0deg)
+    needle_angle = -180 + (score / 100) * 180
+    svg = (
+        '<svg viewBox="0 0 260 150" width="260" height="150" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M 20,130 A 110,110 0 0,1 67.4,27.3" fill="none" stroke="#16a34a" stroke-width="26" stroke-linecap="butt"/>' +
+        '<path d="M 67.4,27.3 A 110,110 0 0,1 192.6,27.3" fill="none" stroke="#d97706" stroke-width="26" stroke-linecap="butt"/>' +
+        '<path d="M 192.6,27.3 A 110,110 0 0,1 240,130" fill="none" stroke="#dc2626" stroke-width="26" stroke-linecap="butt"/>' +
+        '<circle cx="130" cy="130" r="80" fill="#ffffff"/>' +
+        f'<g transform="translate(130,130) rotate({needle_angle})">' +
+        f'<rect x="-3" y="-84" width="6" height="84" rx="3" fill="{color}"/>' +
+        '</g>' +
+        f'<circle cx="130" cy="130" r="8" fill="{color}"/>' +
+        '</svg>'
+    )
+    html_str = (
+        '<div style="background:#ffffff;border-radius:16px;padding:16px 10px 14px 10px;' +
+        'display:flex;flex-direction:column;align-items:center;' +
+        'box-shadow:0 2px 12px rgba(0,0,0,0.12);width:100%;box-sizing:border-box;">' +
+        svg +
+        '<div style="text-align:center;margin-top:6px;">' +
+        f'<span style="font-size:2.2rem;font-weight:800;color:{color};">{score}</span>' +
+        '<span style="font-size:1rem;color:#6b7280;"> / 100</span><br>' +
+        f'<span style="font-size:1.15rem;font-weight:700;color:{color};">{label}</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;width:220px;margin-top:10px;">' +
+        '<span style="font-size:0.8rem;font-weight:700;color:#16a34a;">&#9679; Low</span>' +
+        '<span style="font-size:0.8rem;font-weight:700;color:#d97706;">&#9679; Medium</span>' +
+        '<span style="font-size:0.8rem;font-weight:700;color:#dc2626;">&#9679; High</span>' +
+        '</div></div>'
+    )
+    st.components.v1.html(html_str, height=260)
 
 # ─────────────────────────────────────────
 # PARAMETER TABLE WITH RANGE CHECK
