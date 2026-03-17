@@ -362,10 +362,8 @@ def render_clinical_findings(result):
 if not uploaded_file:
     st.markdown("""
     ### How to use this tool:
-    1. **Get a free API key** from [Google AI Studio](https://aistudio.google.com) *(takes 1 minute)*
-    2. **Paste the key** in the sidebar on the left
-    3. **Upload** your ECG PDF report
-    4. Click **Analyse ECG** and get full clinical results instantly!
+    1. **Upload** your ECG PDF report
+    2. Click **Analyse ECG** and get full clinical results instantly!
     """)
 
 # ── API key warning ──
