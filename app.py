@@ -5,6 +5,7 @@ import json
 import tempfile
 import os
 import io
+import time
 from PIL import Image
 
 # ─────────────────────────────────────────
@@ -104,7 +105,7 @@ def extract_image_from_pdf(pdf_bytes):
 # ─────────────────────────────────────────
 def analyse_ecg(image_path, api_key):
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     image = Image.open(image_path)
 
     prompt = """
@@ -180,8 +181,22 @@ def analyse_ecg(image_path, api_key):
     }
     """
 
-    response = model.generate_content([prompt, image])
-    return response.text
+    for attempt in range(3):
+        try:
+            response = model.generate_content([prompt, image])
+            return response.text
+        except Exception as e:
+            err = str(e)
+            if "ResourceExhausted" in err or "429" in err or "quota" in err.lower():
+                if attempt < 2:
+                    wait = 30 * (attempt + 1)
+                    st.warning(f"⏳ Gemini API rate limit hit. Retrying in {wait} seconds... (attempt {attempt + 1}/3)")
+                    time.sleep(wait)
+                else:
+                    st.error("❌ Gemini API quota exhausted. Please wait a few minutes and try again, or check your API key limits at https://aistudio.google.com")
+                    st.stop()
+            else:
+                raise e
 
 
 
@@ -312,8 +327,13 @@ if uploaded_file and api_key:
         st.image(img_path, caption="Extracted from PDF", use_container_width=True)
         st.divider()
 
-        with st.spinner("Analysing ECG — reading text and waveform... (10–20 seconds)"):
-            raw = analyse_ecg(img_path, api_key)
+        try:
+            with st.spinner("Analysing ECG — reading text and waveform... (10–20 seconds)"):
+                raw = analyse_ecg(img_path, api_key)
+        except Exception as e:
+            os.unlink(img_path)
+            st.error(f"❌ Analysis failed: {str(e)}")
+            st.stop()
         os.unlink(img_path)
 
         try:
