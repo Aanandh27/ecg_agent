@@ -344,30 +344,14 @@ if uploaded_file and api_key:
                 "Urgent":       "🔴 Urgent"
             }
 
-            col_r1, col_r2 = st.columns(2)
-            with col_r1:
-                st.markdown("#### 🎯 ECG Risk Score")
-                st.components.v1.html(
-                    f'<div style="background:#ffffff;border:2px solid {risk_color};border-radius:12px;' +
-                    f'padding:18px 24px;display:inline-block;box-shadow:0 2px 8px rgba(0,0,0,0.08);">' +
-                    f'<span style="font-size:3rem;font-weight:900;color:{risk_color};">{risk}</span>' +
-                    f'<span style="font-size:1.1rem;color:#6b7280;"> / 100</span><br>' +
-                    f'<span style="font-size:1.1rem;font-weight:700;color:{risk_color};">{risk_label}</span>' +
-                    f'</div>',
-                    height=120
-                )
-            with col_r2:
-                st.markdown("#### 🚦 Status")
-                st.markdown(f"### {urgency_map.get(urgency, '⚪ ' + urgency)}")
+            st.markdown(f"🎯 **ECG Risk Score:** {risk} / 100 — {risk_label}")
+            st.markdown(f"🚦 **Status:** {urgency_map.get(urgency, '⚪ ' + urgency)}")
 
             st.divider()
 
             # ── Rhythm & Key Findings ──
             st.markdown("#### 🔎 Rhythm & Key Findings")
             st.info(f"**Rhythm:** {result.get('rhythm','N/A')}\n\n{result.get('key_findings','No findings extracted')}")
-
-            st.markdown("**📝 Plain English Summary**")
-            st.success(result.get("overall_condition", "No summary available"))
 
             st.divider()
 
