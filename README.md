@@ -33,6 +33,30 @@ Streamlit displays patient info + ECG findings
 - Formula-based explainable risk scoring
 - Audit trail for clinical compliance
 
+## How to Use
+
+### Step 1 — Open the app
+Click the Streamlit app link:
+https://ecgagent-qvuqejw3szdaq2tn5tujej.streamlit.app/
+
+### Step 2 — Upload your ECG report
+- Click **Browse files** or drag and drop your ECG PDF
+- Supported format: `.pdf` only
+
+### Step 3 — Analyse
+- Click the **🔍 Analyse ECG** button
+- Wait 10–20 seconds while the AI reads the report
+
+### Step 4 — View results
+You will see:
+- Patient details (ID, age, gender)
+- ECG risk score and urgency status
+- Rhythm and key findings
+- ECG parameter table with normal range check
+- Clinical findings with abnormality flags
+
+> ⚠️ If you see a rate limit error, wait 1–2 minutes and try again.
+> This is a free API quota limit from Google Gemini.
 
 ##Demo - Screenshots
 
