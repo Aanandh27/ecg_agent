@@ -1,4 +1,5 @@
 ECG AI Analyser
+----------------------------------------------------------------------------------------------------------------------------------------
 An AI-powered ECG report analyser that extracts patient information and interprets ECG findings from PDF reports using Google Gemini Vision API.
 ----------------------------------------------------------------------------------------------------------------------------------------
 
