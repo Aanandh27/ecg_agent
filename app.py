@@ -263,15 +263,18 @@ def render_parameter_table(result):
             num = float(str(raw).replace("ms","").replace("bpm","").strip())
             display = f"{int(num)} {meta['unit']}"
             in_range = meta["min"] <= num <= meta["max"]
+            not_found = False
         except:
             display = str(raw)
-            in_range = True
+            in_range = False
+            not_found = True
 
         rows.append({
-            "label": meta["label"],
-            "value": display,
-            "range": f"{meta['min']} – {meta['max']} {meta['unit']}",
-            "ok":    in_range
+            "label":     meta["label"],
+            "value":     display,
+            "range":     f"{meta['min']} – {meta['max']} {meta['unit']}",
+            "ok":        in_range,
+            "not_found": not_found
         })
 
     table_html = """
@@ -287,6 +290,7 @@ def render_parameter_table(result):
         .range-text   { color:#6b7280; font-size:0.82rem; }
         .badge-ok  { background:#dcfce7; color:#166534; border:1px solid #86efac; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; }
         .badge-bad { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .badge-na  { background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; }
     </style>
     <table class="ecg-table">
         <thead><tr>
@@ -295,7 +299,12 @@ def render_parameter_table(result):
     """
     for r in rows:
         vc    = "val-normal" if r["ok"] else "val-abnormal"
-        badge = '<span class="badge-ok">✓ Normal</span>' if r["ok"] else '<span class="badge-bad">⚠ Out of Range</span>'
+        if r["not_found"]:
+            badge = '<span class="badge-na">— Not found</span>'
+        elif r["ok"]:
+            badge = '<span class="badge-ok">✓ Normal</span>'
+        else:
+            badge = '<span class="badge-bad">⚠ Out of Range</span>'
         table_html += f"""<tr>
             <td><strong>{r['label']}</strong></td>
             <td class="{vc}">{r['value']}</td>
