@@ -42,6 +42,7 @@ https://ecgagent-qvuqejw3szdaq2tn5tujej.streamlit.app/
 ### Step 2 — Upload your ECG report
 - Click **Browse files** or drag and drop your ECG PDF
 - Supported format: `.pdf` only
+- Download sample pdf from the repo for testing
 
 ### Step 3 — Analyse
 - Click the **🔍 Analyse ECG** button
